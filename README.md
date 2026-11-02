@@ -6,7 +6,7 @@ Service-bay bookings for a caravan dealer. `api/` is Laravel 12 (SQLite), `web/`
 
 ```bash
 # API: http://127.0.0.1:8000
-cd api
+cd Backend
 composer install
 cp .env.example .env && php artisan key:generate
 php artisan migrate --seed      # offers to create database/database.sqlite
@@ -14,7 +14,7 @@ php artisan serve
 php artisan test                # Pest
 
 # Frontend: http://localhost:3000
-cd web
+cd Frontend
 npm install
 npm run dev                     # API_URL defaults to http://127.0.0.1:8000/api
 ```
@@ -23,7 +23,7 @@ Times are the dealer's local wall-clock time (no offset). The number of bays is 
 
 ## Write-up
 
-**Caching and revalidation.** Reads go through two `'use cache'` functions (`web/lib/bookings.ts`) tagged `bookings`, with a 30s lifetime. Every write action calls `updateTag('bookings')` and then redirects client-side, so the user sees their change immediately without a reload. One coarse tag is deliberate: any write can change a filtered page's rows, order and page count, so per-booking tags save nothing. The short lifetime covers writers Next never hears about (other staff, API clients). Correctness never depends on the cache, since Laravel re-checks every write. Next calls Laravel server-side only, so the API isn't exposed to the browser.
+**Caching and revalidation.** Reads go through two `'use cache'` functions (`Frontend/lib/bookings.ts`) tagged `bookings`, with a 30s lifetime. Every write action calls `updateTag('bookings')` and then redirects client-side, so the user sees their change immediately without a reload. One coarse tag is deliberate: any write can change a filtered page's rows, order and page count, so per-booking tags save nothing. The short lifetime covers writers Next never hears about (other staff, API clients). Correctness never depends on the cache, since Laravel re-checks every write. Next calls Laravel server-side only, so the API isn't exposed to the browser.
 
 **Two simultaneous bookings.** The Form Request checks for overlap to give a precise error on `starts_at`, but on its own that check races. The guarantee is a SQLite `BEFORE INSERT/UPDATE` trigger that aborts with `booking_overlap`. SQLite has a single writer (WAL, `IMMEDIATE` transactions, `busy_timeout` so the second request waits), so the trigger's check and the write are atomic. The controller turns the loser's exception into the same 422, and a Pest test reproduces the race. On Postgres this becomes an `EXCLUDE USING gist` constraint on bay and time range, excluding cancelled bookings.
 

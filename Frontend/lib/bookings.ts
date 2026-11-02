@@ -2,7 +2,6 @@ import { cacheLife, cacheTag } from "next/cache";
 import type { Booking, BookingStatus, Paginated } from "./booking-types";
 
 export const API_URL = process.env.API_URL ?? "http://127.0.0.1:8000/api";
-
 // Every booking read is tagged with this; every write expires it.
 export const BOOKINGS_TAG = "bookings";
 
