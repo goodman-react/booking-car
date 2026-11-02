@@ -1,6 +1,6 @@
 # Workshop bookings
 
-Service-bay bookings for a caravan dealer. `api/` is Laravel 12 (SQLite), `web/` is Next.js 16 (App Router, TypeScript).
+Service-bay bookings for a caravan dealer. `Frontend/` is Laravel 12 (SQLite), `Backend/` is Next.js 16 (App Router, TypeScript).
 
 ## Running it
 
